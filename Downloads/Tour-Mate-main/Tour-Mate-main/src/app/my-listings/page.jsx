@@ -1,0 +1,249 @@
+'use client';
+
+import { useUser, useFirestore, useCollection, useMemoFirebase } from '@/firebase';
+import { collection, query, where, orderBy } from 'firebase/firestore';
+import { useRouter, usePathname } from 'next/navigation';
+import { Button } from '@/components/ui/button';
+import { getAuth, signOut } from 'firebase/auth';
+import { Loader2, Home, List, LogOut, Menu, PlusCircle, User, LayoutGrid, DollarSign, Bell, ArrowLeft } from 'lucide-react';
+import Link from 'next/link';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { Skeleton } from '@/components/ui/skeleton';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
+import { Badge } from '@/components/ui/badge';
+import { cn } from '@/lib/utils';
+import { useEffect } from 'react';
+import Image from 'next/image';
+
+function SidebarNav({ isMobile = false }) {
+    const pathname = usePathname();
+
+    const navLinks = [
+        { href: '/host-dashboard', icon: LayoutGrid, label: 'Dashboard' },
+        { href: '/my-listings', icon: List, label: 'My Listings' },
+        { href: '/add-homestay', icon: PlusCircle, label: 'Add Homestay' },
+        { href: '/booking-requests', icon: Bell, label: 'Booking Requests' },
+        { href: '/earnings', icon: DollarSign, label: 'Earnings' },
+        { href: '/host-profile', icon: User, label: 'Profile' },
+    ];
+
+    return (
+        <nav className={cn("grid items-start gap-1 px-2", isMobile ? "text-lg font-medium" : "text-sm font-medium")}>
+            {navLinks.map((link) => (
+                <Link
+                    key={link.label}
+                    href={link.href}
+                    className={cn(
+                        "flex items-center gap-3 rounded-lg px-3 py-2 text-muted-foreground transition-all hover:text-primary",
+                        pathname === link.href && "bg-muted text-primary"
+                    )}
+                >
+                    <link.icon className="h-4 w-4" />
+                    {link.label}
+                </Link>
+            ))}
+        </nav>
+    );
+}
+
+function ListingsTable({ listings, isLoading }) {
+    if (isLoading) {
+        return (
+            <div className="space-y-4">
+                <Skeleton className="h-12 w-full" />
+                <Skeleton className="h-12 w-full" />
+                <Skeleton className="h-12 w-full" />
+            </div>
+        );
+    }
+
+    if (!listings || listings.length === 0) {
+        return (
+            <div className="flex flex-col items-center justify-center h-48 border-2 border-dashed rounded-lg text-center p-4">
+                <p className="text-muted-foreground mb-4">You haven't created any listings yet.</p>
+                <Button asChild>
+                    <Link href="/add-homestay">Add Homestay</Link>
+                </Button>
+            </div>
+        );
+    }
+
+    return (
+        <Table>
+            <TableHeader>
+                <TableRow>
+                    <TableHead className="hidden w-[100px] sm:table-cell">
+                        <span className="sr-only">Image</span>
+                    </TableHead>
+                    <TableHead>Name</TableHead>
+                    <TableHead>Status</TableHead>
+                    <TableHead className="hidden md:table-cell">Price</TableHead>
+                    <TableHead className="hidden md:table-cell">
+                        Guests
+                    </TableHead>
+                    <TableHead>
+                        <span className="sr-only">Actions</span>
+                    </TableHead>
+                </TableRow>
+            </TableHeader>
+            <TableBody>
+                {listings.map((listing) => (
+                    <TableRow key={listing.id}>
+                        <TableCell className="hidden sm:table-cell">
+                            <div className="relative h-16 w-16 overflow-hidden rounded-md bg-muted">
+                                <Image
+                                    alt={listing.name}
+                                    fill
+                                    className="object-cover"
+                                    src={listing.imageUrl || `https://picsum.photos/seed/${listing.imageHint?.replace(/\s/g, '-') || listing.id}/64/64`}
+                                    data-ai-hint={listing.imageHint || 'homestay cozy'}
+                                />
+                            </div>
+                        </TableCell>
+                        <TableCell className="font-medium">{listing.name}</TableCell>
+                        <TableCell>
+                            <Badge variant={listing.isAvailable ? 'outline' : 'secondary'} className={cn(listing.isAvailable ? 'text-green-600 border-green-300' : '')}>
+                                {listing.isAvailable ? 'Available' : 'Unavailable'}
+                            </Badge>
+                        </TableCell>
+                        <TableCell className="hidden md:table-cell">₹{listing.pricePerNight?.toLocaleString()}</TableCell>
+                        <TableCell className="hidden md:table-cell">
+                            {listing.maxGuests}
+                        </TableCell>
+                        <TableCell>
+                           <div className="flex justify-end gap-2">
+                             <Button variant="outline" size="sm">Edit</Button>
+                             <Button variant="destructive" size="sm">Delete</Button>
+                           </div>
+                        </TableCell>
+                    </TableRow>
+                ))}
+            </TableBody>
+        </Table>
+    );
+}
+
+export default function MyListingsPage() {
+    const { user, isUserLoading } = useUser();
+    const router = useRouter();
+    const firestore = useFirestore();
+
+    useEffect(() => {
+        if (!isUserLoading && !user) {
+            router.replace('/login?redirect=/my-listings');
+        }
+    }, [isUserLoading, user, router]);
+
+    const listingsQuery = useMemoFirebase(() => {
+        if (!user || !firestore) return null;
+        return query(collection(firestore, 'homestays'), where('hostId', '==', user.uid));
+    }, [user, firestore]);
+    const { data: listings, isLoading: listingsLoading } = useCollection(listingsQuery);
+
+    const handleSignOut = () => {
+        const auth = getAuth();
+        signOut(auth).then(() => {
+            window.location.href = '/';
+        });
+    };
+
+    if (isUserLoading || !user) {
+        return (
+            <div className="flex h-screen w-full items-center justify-center bg-background">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+            </div>
+        );
+    }
+
+    return (
+        <div className="grid min-h-screen w-full md:grid-cols-[220px_1fr] lg:grid-cols-[280px_1fr]">
+            <aside className="hidden border-r bg-card md:block">
+                <div className="flex h-full max-h-screen flex-col">
+                    <div className="flex h-14 items-center border-b px-4 lg:h-[60px] lg:px-6">
+                        <Link href="/" className="flex items-center gap-2 font-semibold">
+                            <Home className="h-6 w-6 text-primary" />
+                            <span className="text-xl font-bold"><span className="text-primary">Tour</span>Mate Host</span>
+                        </Link>
+                    </div>
+                    <div className="flex-1 overflow-auto py-4">
+                        <SidebarNav />
+                    </div>
+                </div>
+            </aside>
+            <div className="flex flex-col bg-background">
+                <header className="flex h-14 items-center gap-4 bg-transparent px-4 lg:h-[60px] lg:px-6">
+                    <Sheet>
+                        <SheetTrigger asChild>
+                            <Button
+                                variant="outline"
+                                size="icon"
+                                className="shrink-0 md:hidden"
+                            >
+                                <Menu className="h-5 w-5" />
+                                <span className="sr-only">Toggle navigation menu</span>
+                            </Button>
+                        </SheetTrigger>
+                        <SheetContent side="left" className="flex flex-col p-0">
+                             <div className="flex h-14 items-center border-b px-4 lg:h-[60px] lg:px-6">
+                                <Link href="/" className="flex items-center gap-2 font-semibold">
+                                     <Home className="h-6 w-6 text-primary" />
+                                     <span className="text-xl font-bold"><span className="text-primary">Tour</span>Mate Host</span>
+                                </Link>
+                            </div>
+                            <div className="flex-1 overflow-auto py-4">
+                                <SidebarNav isMobile={true}/>
+                            </div>
+                        </SheetContent>
+                    </Sheet>
+                     <Button
+                        variant="outline"
+                        onClick={() => router.push('/')}
+                        className="flex items-center gap-2"
+                    >
+                        <ArrowLeft className="h-4 w-4" />
+                        Back to Home
+                    </Button>
+                    <div className="w-full flex-1" />
+                    <Button onClick={handleSignOut} variant="secondary">
+                        Logout
+                    </Button>
+                </header>
+                <main className="flex flex-1 flex-col gap-4 p-4 lg:gap-6 lg:p-6">
+                    <div className="flex items-center justify-between">
+                        <div>
+                            <h1 className="text-lg font-semibold md:text-2xl">My Listings</h1>
+                             <p className="text-sm text-muted-foreground">
+                                Manage your properties and their availability.
+                            </p>
+                        </div>
+                         <Button asChild size="sm" className="ml-auto gap-1">
+                            <Link href="/add-homestay">
+                                <PlusCircle className="h-3.5 w-3.5" />
+                                <span className="sr-only sm:not-sr-only sm:whitespace-nowrap">
+                                Add Homestay
+                                </span>
+                            </Link>
+                        </Button>
+                    </div>
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>Your Homestays</CardTitle>
+                            <CardDescription>A list of all your registered homestay properties.</CardDescription>
+                        </CardHeader>
+                        <CardContent>
+                            <ListingsTable listings={listings} isLoading={listingsLoading} />
+                        </CardContent>
+                    </Card>
+                </main>
+            </div>
+        </div>
+    );
+}

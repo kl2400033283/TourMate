@@ -1,0 +1,87 @@
+/**
+ * Core Philosophy: This ruleset provides a public, read-only interface for browsing cities, while securing user and homestay data. The primary goal is to allow any user to view public data, but restrict writes and user profile access to authenticated owners or admins.
+ *
+ * Data Structure: The data is organized into three independent, top-level collections:
+ *   - /cities/{cityId}: Publicly readable city information.
+ *   - /homestays/{homestayId}: Publicly readable, but only writable by owners or admins.
+ *   - /users/{userId}: Private user profile data, accessible only by the owner or admin, with subcollections for bookings.
+ *
+ * Key Security Decisions:
+ * - Public Read Access: `/cities` and `/homestays` are public for read operations (`get`, `list`).
+ * - Owner/Admin Writes: `/homestays` and `/users` can be updated by the document owner or an admin.
+ * - Admin Collection Group Reads: Admins have read access to all booking-related collection groups for platform-wide monitoring.
+ * - All Other Writes Disabled: Public collections are read-only for non-owners/admins. Users cannot delete their profiles.
+ */
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Helper function to check if a user is authenticated.
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    // Helper function to verify that the requesting user's UID matches the document ID.
+    function isOwner(userId) {
+      return request.auth.uid == userId;
+    }
+
+    // Helper function to check if the user has an 'admin' role.
+    function isAdmin() {
+      return isSignedIn() && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+
+    /**
+     * @description Allows public, read-only access to city information.
+     * @path        /cities/{cityId}
+     */
+    match /cities/{cityId} {
+      allow get, list: if true;
+      allow write: if false;
+    }
+
+    /**
+     * @description Allows public read access. Creation is restricted to hosts. Updates by host or admin. Deletion by admin only.
+     * @path        /homestays/{homestayId}
+     */
+    match /homestays/{homestayId} {
+      allow get, list: if true;
+      allow create: if isSignedIn() && request.resource.data.hostId == request.auth.uid;
+      allow update: if (isSignedIn() && resource.data.hostId == request.auth.uid) || isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    /**
+     * @description Secures user profile data and their subcollections.
+     * @path        /users/{userId}
+     */
+    match /users/{userId} {
+      allow create, get: if isSignedIn() && isOwner(userId);
+      allow update: if isSignedIn() && (isOwner(userId) || isAdmin());
+      allow list: if isAdmin();
+      allow delete: if false;
+
+      // Subcollections are readable/writable by the owner OR an admin.
+      match /homestayBookings/{bookingId} { allow read, write: if isSignedIn() && (isOwner(userId) || isAdmin()); }
+      match /receivedHomestayBookings/{bookingId} { allow read, write: if isSignedIn() && (isOwner(userId) || isAdmin()); }
+      match /guideBookings/{bookingId} { allow read, write: if isSignedIn() && (isOwner(userId) || isAdmin()); }
+      match /receivedGuideBookings/{bookingId} { allow read, write: if isSignedIn() && (isOwner(userId) || isAdmin()); }
+    }
+
+    // --- COLLECTION GROUP RULES FOR ADMINS ---
+    // These rules ensure that admins can perform collection group queries across all users' bookings.
+    // While the direct path rules above also grant admin access, these are still necessary for collection group queries.
+    match /{path=**}/homestayBookings/{bookingId} {
+      allow read: if isAdmin();
+    }
+    match /{path=**}/receivedHomestayBookings/{bookingId} {
+      allow read: if isAdmin();
+    }
+    match /{path=**}/guideBookings/{bookingId} {
+      allow read: if isAdmin();
+    }
+    match /{path=**}/receivedGuideBookings/{bookingId} {
+      allow read: if isAdmin();
+    }
+  }
+}

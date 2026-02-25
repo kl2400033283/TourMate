@@ -1,0 +1,52 @@
+{
+  "placeholderImages": [
+    {
+      "id": "hero-image",
+      "description": "India travel and tourism banner.",
+      "imageUrl": "https://images.unsplash.com/photo-1561361522-069491ea11a4?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+      "imageHint": "india travel"
+    },
+    {
+      "id": "feature-image-1",
+      "description": "Taj Mahal iconic Indian monument.",
+      "imageUrl": "https://images.unsplash.com/photo-1564507592333-c60657eea523?q=80&w=2071&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+      "imageHint": "taj mahal"
+    },
+    {
+      "id": "feature-image-2",
+      "description": "Indian heritage and culture.",
+      "imageUrl": "https://images.unsplash.com/photo-1588920694612-8846b0999cff?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+      "imageHint": "india heritage"
+    },
+    {
+      "id": "background-image",
+      "description": "The Taj Mahal in Agra, India.",
+      "imageUrl": "https://images.unsplash.com/photo-1564507592333-c60657eea523?q=80&w=2071&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+      "imageHint": "Taj Mahal"
+    },
+    {
+      "id": "city-placeholder",
+      "description": "Indian city tourism and travel.",
+      "imageUrl": "https://images.unsplash.com/photo-1596318301335-8237dd9dc55e?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+      "imageHint": "city travel"
+    },
+    {
+      "id": "attraction-placeholder",
+      "description": "Indian landmarks and attractions.",
+      "imageUrl": "https://images.unsplash.com/photo-1588920694612-8846b0999cff?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+      "imageHint": "Indian attraction"
+    },
+    {
+      "id": "homestay-placeholder",
+      "description": "Comfortable homestay accommodations.",
+      "imageUrl": "https://images.unsplash.com/photo-1517457373614-b7152f800fd1?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+      "imageHint": "homestay"
+    },
+    {
+      "id": "guide-placeholder",
+      "description": "Professional tour guide avatar.",
+      "imageUrl": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+      "imageHint": "tour guide profile"
+    }
+  ]
+}

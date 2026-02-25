@@ -1,0 +1,403 @@
+{
+  "entities": {
+    "City": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "City",
+      "type": "object",
+      "description": "Represents a geographical city where homestays can be located.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the City entity."
+        },
+        "name": {
+          "type": "string",
+          "description": "The official name of the city."
+        },
+        "description": {
+          "type": "string",
+          "description": "A brief description or overview of the city, highlighting its appeal for visitors."
+        },
+        "country": {
+          "type": "string",
+          "description": "The country where the city is located."
+        },
+        "stateProvince": {
+          "type": "string",
+          "description": "The state or province where the city is located, if applicable."
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "country"
+      ]
+    },
+    "Homestay": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Homestay",
+      "type": "object",
+      "description": "Represents a single homestay property available for listing, located within a specific city.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Homestay entity."
+        },
+        "hostId": {
+          "type": "string",
+          "description": "The UID of the user who owns/hosts this homestay."
+        },
+        "cityId": {
+          "type": "string",
+          "description": "Reference to the City where the homestay is located. (Relationship: City 1:N Homestay)"
+        },
+        "name": {
+          "type": "string",
+          "description": "The commercial name or title of the homestay property."
+        },
+        "description": {
+          "type": "string",
+          "description": "A detailed description of the homestay, including its features, amenities, and unique selling points."
+        },
+        "address": {
+          "type": "string",
+          "description": "The full street address of the homestay."
+        },
+        "latitude": {
+          "type": "number",
+          "description": "The geographical latitude coordinate of the homestay location."
+        },
+        "longitude": {
+          "type": "number",
+          "description": "The geographical longitude coordinate of the homestay location."
+        },
+        "pricePerNight": {
+          "type": "number",
+          "description": "The average price per night for staying at the homestay in a base currency."
+        },
+        "numberOfBedrooms": {
+          "type": "number",
+          "description": "The total number of bedrooms available for guests in the homestay."
+        },
+        "maxGuests": {
+          "type": "number",
+          "description": "The maximum number of guests the homestay can comfortably accommodate."
+        },
+        "amenities": {
+          "type": "array",
+          "description": "A list of amenities offered by the homestay (e.g., 'Wi-Fi', 'Free Parking', 'Kitchen Access').",
+          "items": {
+            "type": "string"
+          }
+        },
+        "imageUrl": {
+          "type": "string",
+          "description": "URL to the primary image representing the homestay property.",
+          "format": "uri"
+        },
+        "contactEmail": {
+          "type": "string",
+          "description": "The email address for contacting the homestay owner or manager for inquiries and bookings.",
+          "format": "email"
+        },
+        "contactPhone": {
+          "type": "string",
+          "description": "The phone number for contacting the homestay owner or manager."
+        },
+        "isAvailable": {
+          "type": "boolean",
+          "description": "A flag indicating whether the homestay is currently available for listing or booking."
+        },
+        "status": {
+          "type": "string",
+          "description": "The moderation status of the homestay listing.",
+          "enum": [
+            "pending_approval",
+            "approved",
+            "rejected"
+          ]
+        }
+      },
+      "required": [
+        "id",
+        "hostId",
+        "cityId",
+        "name",
+        "description",
+        "address",
+        "pricePerNight",
+        "isAvailable",
+        "status"
+      ]
+    },
+    "UserProfile": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "User Profile",
+      "type": "object",
+      "description": "Stores public information about a user, including their assigned role within the application.",
+      "properties": {
+        "uid": {
+          "type": "string",
+          "description": "The unique identifier for the user, matching the Firebase Authentication UID."
+        },
+        "firstName": {
+          "type": "string",
+          "description": "The user's first name."
+        },
+        "lastName": {
+          "type": "string",
+          "description": "The user's last name."
+        },
+        "email": {
+          "type": "string",
+          "format": "email",
+          "description": "The user's email address."
+        },
+        "phoneNumber": {
+          "type": "string",
+          "description": "The user's phone number."
+        },
+        "role": {
+          "type": "string",
+          "description": "The user's role, which determines their permissions and access level.",
+          "enum": [
+            "Tourist",
+            "home stay host",
+            "tour guide",
+            "admin"
+          ]
+        },
+        "status": {
+          "type": "string",
+          "description": "The current status of the user account, used for moderation and verification.",
+          "enum": [
+            "active",
+            "pending_verification",
+            "suspended",
+            "rejected"
+          ]
+        }
+      },
+      "required": [
+        "uid",
+        "email",
+        "role",
+        "firstName",
+        "lastName",
+        "phoneNumber",
+        "status"
+      ]
+    },
+    "HomestayBooking": {
+      "title": "Homestay Booking",
+      "type": "object",
+      "description": "Represents a booking made by a user for a homestay.",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "description": "The UID of the user (tourist) who made the booking."
+        },
+        "hostId": {
+          "type": "string",
+          "description": "The UID of the homestay owner (host)."
+        },
+        "guestName": {
+          "type": "string",
+          "description": "The name of the guest making the booking."
+        },
+        "homestayId": {
+          "type": "string"
+        },
+        "homestayName": {
+          "type": "string"
+        },
+        "city": {
+          "type": "string"
+        },
+        "checkInDate": {
+          "type": "string",
+          "format": "date"
+        },
+        "checkOutDate": {
+          "type": "string",
+          "format": "date"
+        },
+        "bookingDate": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "totalPrice": {
+          "type": "number",
+          "description": "The total price calculated for the booking."
+        },
+        "status": {
+          "type": "string",
+          "description": "The current status of the booking.",
+          "enum": [
+            "pending",
+            "approved",
+            "completed",
+            "declined"
+          ]
+        }
+      },
+      "required": [
+        "userId",
+        "hostId",
+        "guestName",
+        "homestayId",
+        "homestayName",
+        "city",
+        "checkInDate",
+        "checkOutDate",
+        "bookingDate",
+        "totalPrice",
+        "status"
+      ]
+    },
+    "GuideBooking": {
+      "title": "Guide Booking",
+      "type": "object",
+      "description": "Represents a booking made by a user for a tour guide.",
+      "properties": {
+        "userId": {
+          "type": "string",
+          "description": "The UID of the user (tourist) who made the booking."
+        },
+        "guideId": {
+          "type": "string"
+        },
+        "guideName": {
+          "type": "string"
+        },
+        "guestName": {
+          "type": "string",
+          "description": "The name of the guest making the booking."
+        },
+        "city": {
+          "type": "string"
+        },
+        "tourDate": {
+          "type": "string",
+          "format": "date"
+        },
+        "bookingDate": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "totalPrice": {
+          "type": "number",
+          "description": "The total price for the tour."
+        },
+        "status": {
+          "type": "string",
+          "description": "The current status of the booking.",
+          "enum": [
+            "pending",
+            "approved",
+            "completed",
+            "declined"
+          ]
+        }
+      },
+      "required": [
+        "userId",
+        "guideId",
+        "guideName",
+        "guestName",
+        "city",
+        "tourDate",
+        "bookingDate",
+        "totalPrice",
+        "status"
+      ]
+    }
+  },
+  "auth": {
+    "providers": [
+      "password",
+      "anonymous"
+    ]
+  },
+  "firestore": {
+    "structure": [
+      {
+        "path": "/cities/{cityId}",
+        "definition": {
+          "entityName": "City",
+          "schema": {
+            "$ref": "#/backend/entities/City"
+          },
+          "description": "Stores information about various cities. All documents in this collection are publicly readable. No denormalized authorization fields are required as access is global."
+        }
+      },
+      {
+        "path": "/homestays/{homestayId}",
+        "definition": {
+          "entityName": "Homestay",
+          "schema": {
+            "$ref": "#/backend/entities/Homestay"
+          },
+          "description": "Stores details for individual homestay properties. Each document includes a 'cityId' field to link it to its parent city, and a 'hostId' to link to the owner. The 'isAvailable' field is used for client-side filtering. All documents in this collection are publicly readable.",
+          "params": [
+            {
+              "name": "homestayId",
+              "description": "The unique identifier for a specific homestay property."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/users/{userId}",
+        "definition": {
+          "entityName": "UserProfile",
+          "schema": {
+            "$ref": "#/backend/entities/UserProfile"
+          },
+          "description": "Stores user profile information. Each user's document is identified by their Firebase Auth UID. Security rules ensure that users can only create and modify their own profile document. The 'role' field is critical for role-based access control."
+        }
+      },
+      {
+        "path": "/users/{userId}/homestayBookings/{bookingId}",
+        "definition": {
+          "entityName": "HomestayBooking",
+          "schema": {
+            "$ref": "#/backend/entities/HomestayBooking"
+          },
+          "description": "Stores a user's (tourist's) own homestay bookings. Only accessible by the user themselves."
+        }
+      },
+       {
+        "path": "/users/{userId}/receivedHomestayBookings/{bookingId}",
+        "definition": {
+          "entityName": "HomestayBooking",
+          "schema": {
+            "$ref": "#/backend/entities/HomestayBooking"
+          },
+          "description": "Stores homestay bookings received by a host. Only accessible by the host themselves."
+        }
+      },
+      {
+        "path": "/users/{userId}/guideBookings/{bookingId}",
+        "definition": {
+          "entityName": "GuideBooking",
+          "schema": {
+            "$ref": "#/backend/entities/GuideBooking"
+          },
+          "description": "Stores a user's tour guide bookings. Only accessible by the user themselves."
+        }
+      },
+      {
+        "path": "/users/{userId}/receivedGuideBookings/{bookingId}",
+        "definition": {
+          "entityName": "GuideBooking",
+          "schema": {
+            "$ref": "#/backend/entities/GuideBooking"
+          },
+          "description": "Stores tour bookings received by a guide. Only accessible by the guide themselves."
+        }
+      }
+    ],
+    "reasoning": "The Firestore structure uses top-level collections for `/cities` and `/homestays` for public access, and a `/users` collection for private user data. The `/users/{userId}` document contains subcollections for data specific to that user, such as `homestayBookings` (bookings they've made), `receivedHomestayBookings` (bookings other users have made for their properties), `guideBookings`, and `receivedGuideBookings`. This denormalized approach facilitates efficient and secure querying. A host or guide can simply query their own respective 'received' collection to get all relevant bookings without needing to scan other parts of the database. This aligns with Firestore's security model where rules are based on paths, and ensures data is only accessible by the correct user (tourist, host, or guide)."
+  }
+}
