@@ -1,17 +1,13 @@
 [build]
   command = "npm run build"
-  functions = "netlify/functions"
-  publish = ".next"
+  functions = ".next/server"
+  publish = ".next/static"
 
 [functions]
   nodejs_version = "20"
+  included_files = [".next/server/**"]
 
 [[redirects]]
   from = "/*"
-  to = "/.netlify/functions/___netlify-handler"
-  status = 200
-
-[[redirects]]
-  from = "/api/*"
-  to = "/.netlify/functions/:splat"
+  to = "/index.html"
   status = 200
