@@ -1,13 +1,6 @@
 [build]
   command = "npm run build"
-  functions = ".next/server"
-  publish = ".next/static"
+  publish = ".next"
 
-[functions]
-  nodejs_version = "20"
-  included_files = [".next/server/**"]
-
-[[redirects]]
-  from = "/*"
-  to = "/index.html"
-  status = 200
+[[plugins]]
+  package = "@netlify/plugin-nextjs"
