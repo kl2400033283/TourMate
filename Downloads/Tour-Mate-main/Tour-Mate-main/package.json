@@ -49,6 +49,7 @@
     "zod": "^3.24.2"
   },
   "devDependencies": {
+    "@netlify/plugin-nextjs": "^5.15.8",
     "eslint": "9.39.3",
     "eslint-config-next": "16.1.6",
     "postcss": "^8",

@@ -44,7 +44,7 @@ export const citiesByState = {
         { name: 'Prakasam Barrage', description: 'A modern barrage that stretches across the Krishna River.', image: 'https://www.istockphoto.com/photo/prakasam-barrage-in-vijayawada-india-gm1074769400-287699743?utm_source=pixabay&utm_medium=affiliate&utm_campaign=sponsored_image&utm_content=srp_topbanner_media&utm_term=prakasam+barrage', hint: 'vijayawada barrage' },
         { name: 'Undavalli Caves', description: 'Monolithic rock-cut caves from the 4th to 5th centuries.', image: 'https://www.istockphoto.com/photo/historic-undavalli-caves-near-vijayawada-city-in-india-gm1746387845-543345236?utm_source=pixabay&utm_medium=affiliate&utm_campaign=sponsored_image&utm_content=srp_topbanner_media&utm_term=undavalli+caves', hint: 'ancient caves' },
         { name: 'Bhavani Island', description: 'One of the largest islands on the Krishna River, a popular resort.', image: 'https://myholidayhappiness.com/uploads/bhavani-island-7932.jpg', hint: 'river island' },
-        { name: 'Kondapalli Fort', description: 'A 14th-century fort with impressive gateways and ramparts.', image: 's7ap1.scene7.com/is/image/incredibleindia/kondapalli-fort-guntur-andhra-pradesh-2-attr-hero?qlt=82&ts=1726743696048', hint: 'historical fort' },
+        { name: 'Kondapalli Fort', description: 'A 14th-century fort with impressive gateways and ramparts.', image: 'https://s7ap1.scene7.com/is/image/incredibleindia/kondapalli-fort-guntur-andhra-pradesh-2-attr-hero?qlt=82&ts=1726743696048', hint: 'historical fort' },
       ]
     },
   ],

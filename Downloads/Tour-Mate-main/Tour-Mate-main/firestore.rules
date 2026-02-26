@@ -62,10 +62,22 @@ service cloud.firestore {
       allow delete: if false;
 
       // Subcollections are readable/writable by the owner OR an admin.
+      // Additionally, guests can create bookings in a host's receivedHomestayBookings and receivedGuideBookings.
       match /homestayBookings/{bookingId} { allow read, write: if isSignedIn() && (isOwner(userId) || isAdmin()); }
-      match /receivedHomestayBookings/{bookingId} { allow read, write: if isSignedIn() && (isOwner(userId) || isAdmin()); }
+      match /receivedHomestayBookings/{bookingId} { 
+        // tourists may only create a booking record for a host when they are authenticated
+        allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid
+                       && request.resource.data.hostId == userId;
+        // hosts (owner of the parent "user" doc) and admins can view or manage these
+        allow read, update, delete: if isSignedIn() && (isOwner(userId) || isAdmin());
+      }
       match /guideBookings/{bookingId} { allow read, write: if isSignedIn() && (isOwner(userId) || isAdmin()); }
-      match /receivedGuideBookings/{bookingId} { allow read, write: if isSignedIn() && (isOwner(userId) || isAdmin()); }
+      match /receivedGuideBookings/{bookingId} { 
+        // tourists may only create a booking record for a guide when authenticated
+        allow create: if isSignedIn() && request.resource.data.userId == request.auth.uid
+                       && request.resource.data.guideId == userId;
+        allow read, update, delete: if isSignedIn() && (isOwner(userId) || isAdmin());
+      }
     }
 
     // --- COLLECTION GROUP RULES FOR ADMINS ---

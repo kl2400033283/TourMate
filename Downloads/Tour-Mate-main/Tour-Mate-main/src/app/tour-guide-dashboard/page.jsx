@@ -17,6 +17,8 @@ import {
   ArrowLeft,
   MapPin,
 } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast.jsx';
+import { Badge } from '@/components/ui/badge.jsx';
 import { Button } from '@/components/ui/button.jsx';
 import {
   Card,
@@ -38,7 +40,7 @@ import { collection, query, where, doc, orderBy } from 'firebase/firestore';
 import { useEffect, useMemo } from 'react';
 
 
-function SidebarNav({ isMobile = false }) {
+function SidebarNav({ isMobile = false, pendingCount = 0 }) {
     const pathname = usePathname();
 
     const navLinks = [
@@ -62,6 +64,11 @@ function SidebarNav({ isMobile = false }) {
                 >
                     <link.icon className="h-4 w-4" />
                     {link.label}
+                    {link.href === '/hire-requests' && pendingCount > 0 && (
+                        <Badge variant="secondary" className="ml-auto">
+                            {pendingCount}
+                        </Badge>
+                    )}
                 </Link>
             ))}
         </nav>
@@ -72,6 +79,7 @@ export default function TourGuideDashboardPage() {
     const router = useRouter();
     const { user, isUserLoading } = useUser();
     const firestore = useFirestore();
+    const { toast } = useToast();
 
     const userProfileRef = useMemoFirebase(() => {
         if (!user || !firestore) return null;
@@ -133,6 +141,31 @@ export default function TourGuideDashboardPage() {
         return (bookings || []).filter(b => b.status === 'pending').length;
     }, [bookings]);
 
+    // show a toast when a new pending booking arrives (ignore existing docs on first load)
+    const prevBookingsRef = React.useRef([]);
+    const initializedRef = React.useRef(false);
+    useEffect(() => {
+        if (!bookings) return;
+        if (!initializedRef.current) {
+            // first time we see the list, just record it and don't notify
+            prevBookingsRef.current = bookings;
+            initializedRef.current = true;
+            return;
+        }
+        const previous = prevBookingsRef.current || [];
+        const prevIds = new Set(previous.map(b => b.id));
+        const newItems = bookings.filter(b => !prevIds.has(b.id) && b.status === 'pending');
+        if (newItems.length > 0) {
+            newItems.forEach(b => {
+                toast({
+                    title: 'New hire request',
+                    description: `Booking from ${b.guestName || b.userEmail || ''} for ${b.city} on ${b.tourDate}`,
+                });
+            });
+        }
+        prevBookingsRef.current = bookings;
+    }, [bookings, toast]);
+
     const totalEarnings = useMemo(() => {
          if (!bookings) return 0;
         return (bookings || [])
@@ -166,7 +199,7 @@ export default function TourGuideDashboardPage() {
             </Link>
           </div>
           <div className="flex-1 overflow-auto py-4">
-            <SidebarNav />
+            <SidebarNav pendingCount={pendingRequests} />
           </div>
         </div>
       </aside>
@@ -191,7 +224,7 @@ export default function TourGuideDashboardPage() {
                     </Link>
                 </div>
                 <div className="flex-1 overflow-auto py-4">
-                  <SidebarNav isMobile={true} />
+                  <SidebarNav isMobile={true} pendingCount={pendingRequests} />
                 </div>
             </SheetContent>
           </Sheet>
